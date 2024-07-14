@@ -10,12 +10,12 @@ from langchain.chains import LLMChain
 from langchain.chains import create_retrieval_chain
 import bs4
 
+#st.title("2-Wheeler Guide 🏍️")
+#question = st.text_area("Please enter your query:",height=150)
 
 #loading the necessary documents 
 text = TextLoader(r'C:\Users\Devadarsan\Desktop\Karthik_projects\2-wheeler_guide\guide.txt')
 text = text.load()
-
-
 web1 = WebBaseLoader(web_paths=("https://auto.hindustantimes.com/new-bikes/bikes-under-50000",),
                      bs_kwargs=dict(parse_only=bs4.SoupStrainer(
                          class_=("finderCard")
@@ -44,7 +44,6 @@ web7 = WebBaseLoader(web_paths=("https://auto.hindustantimes.com/new-bikes/searc
                      bs_kwargs=dict(parse_only=bs4.SoupStrainer(
                          class_=("finderCard")
 )))
-
 web1=web1.load()
 web2=web2.load()
 web3=web3.load()
@@ -57,52 +56,38 @@ web7=web7.load()
 # splitting the documents into chunks
 splitter = RecursiveCharacterTextSplitter(chunk_size=1000,chunk_overlap=200)
 splitter = splitter.split_documents(text)
-
 #embedding the data and storing that in the vectorstore 
 embeddings=HuggingFaceBgeEmbeddings(
     model_name="BAAI/bge-small-en-v1.5",
     model_kwargs={'device':'cpu'},
-    encode_kwargs={'normalize_embeddings':True}
+    encode_kwargs={'normalize_embeddings':True})
 
-)
 db = Chroma.from_documents(splitter, embeddings)
-
-'''
-query = "need a comfort bike"
-result = db.similarity_search(query)
-print(result[0].page_content)
-'''
 
 #defining the llama3 model 
 llm = Ollama(model="llama3",temperature=0)
 
 
-
-
 prompt = ChatPromptTemplate.from_template(""" You are an expert 2 wheeler motorcycle reviewer/guide/resource person.
                                               you know in and out everything about 2 wheeler motor cycle.
-                                           You are a knowledgeable AI assistant specializing in V2 wheeler motorcycles. Provide comprehensive, sensible, detailed, and well-adapted answers to user queries. 
+                                           Provide comprehensive, sensible, detailed, and well-adapted answers to user queries. 
                                           Ensure high accuracy and relevance to the specific question and situation.
-                                        your role is to assist helping people in queries regarding their motorcycle doubts
-                                          and suggest them the best,sensible motorcycle and tell the reason for suggesting that motorcycle.
                                           <context>   
                                           {context}
                                           </context>
-                                          question : {input}
-                                         
+                                          question:{input}
                                           
-""")
-
-
+                                          I need the output to be in the format of
+                                          ["Model": "", /n/n
+                                            "Summary": "" /n/n
+                                            "Mileage ": "",/n/n
+                                            "Price": "", /n/n
+                                            "why should i buy this bike " : ""]   """)
 from langchain.chains.combine_documents import create_stuff_documents_chain
 chain = create_stuff_documents_chain(llm,prompt)
-
 retriver = db.as_retriever()
-retriver
-
 
 chains = create_retrieval_chain(retriver,chain)
-
-answer = chains.invoke({"input":"suggest me top 5 bikes under 3 lakhs and why i should buy these"})
-
+answer = chains.invoke({"input":"power or mileage"})
 print(answer['answer'])
+
