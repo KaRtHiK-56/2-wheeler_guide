@@ -89,6 +89,8 @@ Add badges from somewhere like: [shields.io](https://shields.io/)
 
 https://github.com/KaRtHiK-56/2-wheeler_guide
 
+<img src="https://github.com/KaRtHiK-56/2-wheeler_guide/blob/main/guide.png">
+
 
 ## Documentation
 
