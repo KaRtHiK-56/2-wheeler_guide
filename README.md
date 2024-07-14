@@ -64,3 +64,68 @@ The generative AI 2-wheelers suggestion application is designed to address these
 - **Integration with Online Marketplaces**: Enable direct links to purchase or compare suggested bikes.
 - **Expanded Criteria**: Include additional factors such as brand reputation, maintenance costs, and user reviews.
 - **Multi-Language Support**: Extend the application to support queries in multiple languages for a broader user base.
+
+## Acknowledgements
+
+ - [Langchain](https://www.langchain.com/)
+ - [Ollama](https://ollama.com/)
+ - [Llama-3](https://ollama.com/library/llama3)
+
+
+## Authors
+
+- [@Github](https://www.github.com/KaRtHiK-56)
+- [@LinkedIn](https://www.linkedin.com/in/l-karthik/)
+
+
+## Badges
+
+Add badges from somewhere like: [shields.io](https://shields.io/)
+
+![MIT License](https://img.shields.io/badge/License-MIT-green.svg)
+
+
+## Demo
+
+https://github.com/KaRtHiK-56/2-wheeler_guide
+
+
+## Documentation
+
+ - [Langchain](https://www.langchain.com/)
+ - [Ollama](https://ollama.com/)
+ - [Llama-3](https://ollama.com/library/llama3)
+
+## Technology used
+
+### Backend
+- **LangChain:** For chaining together various AI models and processing workflows.
+- **Llama 3 Model:** A state-of-the-art language model used for generating human-like text.
+- **Python:** The primary programming language for implementing the application logic.
+
+### Frontend
+- **Streamlit:** An open-source app framework used for creating the web interface.
+
+## Installation
+
+
+### Installation Steps
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/KaRtHiK-56/Resume_Analyser
+   ```
+2. Install the required packages:
+   ```bash
+   pip install -r requirements.txt
+   ```
+3. Run the Streamlit application:
+   ```bash
+   streamlit run app.py
+   ```
+
+## Usage Guide
+
+1. **Launching the Application:**
+   - Open a terminal and navigate to the project directory.
+   - Run `streamlit run app.py`.
+   - Open the provided URL in a web browser.
