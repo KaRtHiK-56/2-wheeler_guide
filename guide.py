@@ -9,6 +9,9 @@ from langchain_community.document_loaders import WebBaseLoader
 from langchain.chains import LLMChain
 from langchain.chains import create_retrieval_chain
 import bs4
+from langchain.chains.router.multi_prompt_prompt import MULTI_PROMPT_ROUTER_TEMPLATE
+from langchain.chains.router.llm_router import LLMRouterChain,RouterOutputParser
+from langchain.chains.router import MultiPromptChain
 
 #st.title("2-Wheeler Guide 🏍️")
 #question = st.text_area("Please enter your query:",height=150)
@@ -16,6 +19,7 @@ import bs4
 #loading the necessary documents 
 text = TextLoader(r'C:\Users\Devadarsan\Desktop\Karthik_projects\2-wheeler_guide\guide.txt')
 text = text.load()
+
 web1 = WebBaseLoader(web_paths=("https://auto.hindustantimes.com/new-bikes/bikes-under-50000",),
                      bs_kwargs=dict(parse_only=bs4.SoupStrainer(
                          class_=("finderCard")
@@ -67,8 +71,8 @@ db = Chroma.from_documents(splitter, embeddings)
 #defining the llama3 model 
 llm = Ollama(model="llama3",temperature=0)
 
-
-prompt = ChatPromptTemplate.from_template(""" You are an expert 2 wheeler motorcycle reviewer/guide/resource person.
+#creating LLM router template
+advance_prompt = """ You are an expert 2 wheeler bike reviewer/guide/resource person.
                                               you know in and out everything about 2 wheeler motor cycle.
                                            Provide comprehensive, sensible, detailed, and well-adapted answers to user queries. 
                                           Ensure high accuracy and relevance to the specific question and situation.
@@ -82,12 +86,54 @@ prompt = ChatPromptTemplate.from_template(""" You are an expert 2 wheeler motorc
                                             "Summary": "" /n/n
                                             "Mileage ": "",/n/n
                                             "Price": "", /n/n
-                                            "why should i buy this bike " : ""]   """)
-from langchain.chains.combine_documents import create_stuff_documents_chain
-chain = create_stuff_documents_chain(llm,prompt)
+                                            "why should i buy this bike " : ""]   """
+
+beginner_prompt = """
+You are an expert 2 wheeler bike reviewer/guide, you know in and out of everything in indian Bikes.
+your role is to help people with their query regarding guide/factors to purchase the bikes.
+Here is the question <context>   
+                    {context}
+                    </context> 
+                    question:{input}
+"""
+
+# creating a router prompt template 
+prompt_infos = [
+
+    { "name":"advance" ,
+     "description":"Answering question related to suggesting bikes" ,
+     "template":advance_prompt, },
+
+     { "name":"beginner" ,
+     "description":"Answering questions for factors/guides for purchasing bikes" ,
+     "template": beginner_prompt, },
+]
+
+destination_p = {}
+for info in prompt_infos:
+    name = info['name']
+    prompt_template = info['template']
+    prompt = ChatPromptTemplate.from_template(template=prompt_template)
+    chain = LLMChain(llm = llm,prompt = prompt)
+    destination_p['name'] = chain
+
+default_prompt = ChatPromptTemplate.from_template('{input}')
+default_chain = LLMChain(llm=llm,prompt=default_prompt)
+
+destination = [f"{p['name']}:{p['description']}" for p in prompt_infos] 
+destination_str = "/n".join(destination)
+
+router_template = MULTI_PROMPT_ROUTER_TEMPLATE.format(destinations=destination_str)
+
+router_prompt = PromptTemplate(template=router_template,input_variables=['input'],output_parser=RouterOutputParser())
+
+router_chain = LLMRouterChain.from_llm(llm,router_prompt)
+
+chain = MultiPromptChain(router_chain=router_chain,destination_chains=destination_p,default_chain=default_chain,verbose=True,silent_errors=True)
+
 retriver = db.as_retriever()
 
 chains = create_retrieval_chain(retriver,chain)
-answer = chains.invoke({"input":"power or mileage"})
-print(answer['answer'])
+answer = chains.invoke({"input":"what should i buy 400cc or 600cc?"})
+print("answer is",answer['answer'])
 
