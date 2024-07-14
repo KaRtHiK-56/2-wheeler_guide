@@ -91,6 +91,8 @@ https://github.com/KaRtHiK-56/2-wheeler_guide
 
 <img src="https://github.com/KaRtHiK-56/2-wheeler_guide/blob/main/guide.png">
 
+<img src="https://github.com/KaRtHiK-56/2-wheeler_guide/blob/main/suggestion.png">
+
 
 ## Documentation
 
